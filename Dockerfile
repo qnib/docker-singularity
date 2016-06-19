@@ -14,4 +14,16 @@ RUN echo 'sudo /usr/local/bin/singularity create /tmp/centos7.img' >> /home/sing
  && echo 'sudo /usr/local/bin/singularity create /tmp/fedora.img' >> /home/singularity/.bash_history \
  && echo 'sudo /usr/local/bin/singularity expand /tmp/fedora.img' >> /home/singularity/.bash_history \
  && echo 'sudo /usr/local/bin/singularity exec -w /tmp/fedora.img dnf groupinstall -y "Development Tools"' >> /home/singularity/.bash_history 
+
+## Openmpi
+RUN yum groupinstall -y "Development Tools" \
+ && git clone https://github.com/open-mpi/ompi.git /tmp/ompi \
+ && cd /tmp/ompi \
+ && ./autogen.pl \
+ && ./configure --prefix=/usr/local \
+ && make \
+ && make install
+ADD ompi.sh /opt/
+
+echo "mpirun -np 4 singularity exec /tmp/fedora.img /usr/bin/ring" >> /home/singularity/.bash_history
 USER singularity
