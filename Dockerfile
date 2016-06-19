@@ -25,5 +25,19 @@ RUN yum groupinstall -y "Development Tools" \
  && make install
 ADD ompi.sh /opt/
 
-echo "mpirun -np 4 singularity exec /tmp/fedora.img /usr/bin/ring" >> /home/singularity/.bash_history
+RUN echo "mpirun -np 4 singularity exec /tmp/fedora.img /usr/bin/ring" >> /home/singularity/.bash_history
+
+# passwordless ssh
+RUN yum install -y openssh-server openssh-clients \
+ && mkdir -p /var/run/sshd \
+ && sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config \
+ && getent passwd sshd || useradd -g sshd sshd \
+ && echo "        StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
+ && echo "        UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config \
+ && echo "        AddressFamily inet" >> /etc/ssh/ssh_config \
+ && ssh-keygen -A \
+ && ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 USER singularity
+RUN ssh-keygen -t rsa -N "" -f /home/singularity/.ssh/id_rsa \
+ && cp /home/singularity/.ssh/id_rsa.pub /home/singularity/.ssh/authorized_keys
+USER root

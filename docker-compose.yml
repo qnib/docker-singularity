@@ -1,0 +1,17 @@
+singularity1:
+   image: qnib/singularity
+   hostname: singularity1
+   container_name: singularity1
+   command: /sbin/sshd -D
+   privileged: true
+   volumes:
+    - ./data/:/data/
+
+singularity2:
+   image: qnib/singularity
+   hostname: singularity2
+   container_name: singularity2
+   command: /sbin/sshd -D
+   privileged: true
+   volumes:
+    - ./data/:/data/
